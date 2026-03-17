@@ -1,0 +1,14 @@
+{
+  "name": "steam-idle",
+  "version": "1.0.0",
+  "main": "steam_idler.js",
+  "scripts": {
+    "start": "node steam_idler.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "dotenv": "^16.x.x",
+    "express": "^4.x.x",
+    "steam-user": "^5.x.x"
+  }
+}
