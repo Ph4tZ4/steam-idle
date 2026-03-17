@@ -5,9 +5,8 @@ const express = require('express'); // 1. นำเข้า express
 const app = express();
 const port = process.env.PORT || 3000; // Render จะส่งพอร์ตมาทาง process.env.PORT
 
-// 2. สร้างหน้าเว็บเปล่าๆ เพื่อให้ Render รู้ว่าโปรแกรมเราทำงานอยู่
-// บันทึกเวลาเริ่มต้นทันทีที่สคริปต์ทำงาน
-const startTime = Date.now();
+// บันทึกเวลาเริ่มต้น (ค่าตั้งต้นเป็น null จะเริ่มนับเมื่อล็อกอินสำเร็จ)
+let startTime = null;
 
 // 1. สถานะของบอท (Dynamic Status)
 let currentStatus = '🟡 กำลังเตรียมการเชื่อมต่อ...';
@@ -36,7 +35,7 @@ app.post('/steamguard', (req, res) => {
 
 app.get('/', (req, res) => {
     // คำนวณเวลาที่ผ่านไป (มิลลิวินาที -> วินาที, นาที, ชั่วโมง)
-    const uptimeMillis = Date.now() - startTime;
+    const uptimeMillis = startTime ? (Date.now() - startTime) : 0;
     const hours = Math.floor(uptimeMillis / 3600000);
     const minutes = Math.floor((uptimeMillis % 3600000) / 60000);
     const seconds = Math.floor((uptimeMillis % 60000) / 1000);
@@ -92,14 +91,15 @@ app.get('/', (req, res) => {
                 </form>
                 ` : `
                 <div class="time-display" id="time">
-                    ${hours} ชม. ${minutes} นาที ${seconds} วินาที
+                    ${startTime ? `${hours} ชม. ${minutes} นาที ${seconds} วินาที` : '0 ชม. 0 นาที 0 วินาที'}
                 </div>
-                <div class="status">อัปเดตเวลาอัตโนมัติ 🟢</div>
+                <div class="status">${startTime ? 'อัปเดตเวลาอัตโนมัติ 🟢' : 'รอเริ่มนับเวลา... ⏱️'}</div>
                 `}
             </div>
             <script>
                 const timeEl = document.getElementById('time');
-                if (timeEl) {
+                const isRunning = ${startTime !== null};
+                if (timeEl && isRunning) {
                     const initialUptime = ${uptimeMillis};
                     const pageLoadTime = Date.now();
                     
@@ -148,6 +148,11 @@ client.on('loggedOn', () => {
     const gamesToPlay = [381210]; // Dead by Daylight
     client.gamesPlayed(gamesToPlay);
     console.log(`กำลังจำลองการเล่นเกม AppID: ${gamesToPlay.join(', ')}...`);
+
+    // เริ่มนับเวลาหลังทำการปั๊มชั่วโมงเรียบร้อยแล้ว
+    if (!startTime) {
+        startTime = Date.now();
+    }
 
     // อัปเดตสถานะเป็นออนไลน์
     currentStatus = `🟢 ออนไลน์: กำลังปั๊มชั่วโมง อ้างอิง AppID: ${gamesToPlay.join(', ')}`;
