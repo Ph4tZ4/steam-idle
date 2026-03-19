@@ -17,7 +17,7 @@ let steamGuardCallback = null;
 app.use(express.urlencoded({ extended: true }));
 
 // 3. Healthcheck Route สำหรับ Cron-job
-app.get('/ping', (req, res) => {
+app.get('https://steam-idle-2woa.onrender.com/ping', (req, res) => {
     res.status(200).send('OK');
 });
 
